@@ -134,6 +134,7 @@ class DualAudioRecorder: NSObject {
         print("   🎧 \(mixDirectory.lastPathComponent): \(mixDirectory.path)")
 
         if let microphoneURL, let systemURL, let baseName {
+            print("🎚️ Подготавливаем сведение и загрузку для \(baseName)...")
             Task.detached { [weak self] in
                 await self?.mixDownRecordings(
                     microphoneURL: microphoneURL,
@@ -231,6 +232,7 @@ class DualAudioRecorder: NSObject {
     }
 
     private func mixDownRecordings(microphoneURL: URL, systemURL: URL, baseName: String) async {
+        print("🎚️ Сведение дорожек для \(baseName) запущено...")
         do {
             let outputURL = try await mixAudioFiles(
                 microphoneURL: microphoneURL,
@@ -241,6 +243,17 @@ class DualAudioRecorder: NSObject {
             print("🎧 Сведение завершено: \(outputURL.lastPathComponent)")
             print("   Размер: \(fileSize)")
             print("   Путь: \(outputURL.path)")
+            print("☁️ Отправка микса в Supabase (если настроено)...")
+
+            Task.detached(priority: .background) {
+                do {
+                    try await SupabaseUploader.shared.uploadMix(at: outputURL, baseName: baseName)
+                    print("📤 Supabase: микс \(outputURL.lastPathComponent) отправлен")
+                } catch {
+                    print("⚠️ Supabase: не удалось загрузить \(outputURL.lastPathComponent): \(error.localizedDescription)")
+                    print("   Продолжаем работу офлайн, файл доступен локально.")
+                }
+            }
         } catch {
             print("❌ Ошибка сведения дорожек: \(error.localizedDescription)")
         }
