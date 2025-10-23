@@ -187,12 +187,14 @@ func main() async {
     print("   1. Зайдите в Safari на встречу")
     print("   2. Начните говорить → запись начнётся автоматически")
     print("   3. После 2 секунд тишины → запись остановится")
-    print("   4. Файлы сохраняются в Application Support → AutoMeetingRecorder/Recordings")
+    print("   4. После остановки дорожки автоматически сводятся в один файл M4A")
+    print("      (mix_<timestamp>.m4a в папке Recordings)")
 
     let paths = AppPaths.shared
     print("\n📂 Структура файлов:")
     print("   Корневая папка: \(paths.rootDirectory.path)")
-    print("   Записи: \(paths.recordingsDirectory.path)\n")
+    print("   Записи: \(paths.recordingsDirectory.path)")
+    print("   Пример готового микса: mix_YYYY-MM-DDTHH-MM-SS.m4a\n")
     
     print("🎮 Команды:")
     print("   [Enter] - Начать запись вручную")
