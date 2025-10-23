@@ -36,11 +36,11 @@ actor SupabaseUploader {
         print("☁️ SupabaseUploader: начинаем загрузку \(path)")
 
         do {
-            let options = FileOptions(cacheControl: nil, contentType: "audio/mp4", upsert: true)
+            let options = FileOptions(contentType: "audio/mp4", upsert: true)
             try await client.storage.from(bucket).upload(
                 path: path,
                 data: data,
-                fileOptions: options
+                options: options
             )
             print("✅ SupabaseUploader: загрузка завершена \(path)")
         } catch {
