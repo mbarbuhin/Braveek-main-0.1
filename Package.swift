@@ -6,11 +6,15 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/supabase-community/supabase-swift", .upToNextMajor(from: "2.0.0"))
+    ],
     targets: [
         .executableTarget(
             name: "AutoMeetingRecorder",
-            dependencies: [],
+            dependencies: [
+                .product(name: "Supabase", package: "supabase-swift")
+            ],
             linkerSettings: [
                 .linkedFramework("AVFoundation"),
                 .linkedFramework("CoreAudio"),
