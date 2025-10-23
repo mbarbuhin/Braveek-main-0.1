@@ -16,7 +16,9 @@ class DualAudioRecorder: NSObject {
     private var recordingStartTime: Date?
     private var currentRecordingBaseName: String?
 
-    private let outputDirectory: URL
+    private let microphoneDirectory: URL
+    private let systemDirectory: URL
+    private let mixDirectory: URL
     private let queue = DispatchQueue(label: "com.meetingrecorder.audio", qos: .userInitiated)
 
     var onRecordingStopped: (() -> Void)?
@@ -24,12 +26,18 @@ class DualAudioRecorder: NSObject {
     // MARK: - Init
 
     override init() {
-        self.outputDirectory = AppPaths.shared.recordingsDirectory
+        let paths = AppPaths.shared
+        self.microphoneDirectory = paths.microphoneRecordingsDirectory
+        self.systemDirectory = paths.systemRecordingsDirectory
+        self.mixDirectory = paths.mixedRecordingsDirectory
 
         super.init()
 
         print("🎙️  DualAudioRecorder инициализирован")
-        print("📁 Записи сохраняются: \(outputDirectory.path)")
+        print("📁 Папки сохранения:")
+        print("   🎤 Микрофон: \(microphoneDirectory.path)")
+        print("   💻 Система: \(systemDirectory.path)")
+        print("   🎧 Миксы: \(mixDirectory.path)")
     }
     
     // MARK: - Public Methods
@@ -120,7 +128,10 @@ class DualAudioRecorder: NSObject {
             print("   Размер: \(fileSize)")
         }
 
-        print("📂 Папка: \(outputDirectory.path)")
+        print("📂 Папки назначения:")
+        print("   🎤 \(microphoneDirectory.lastPathComponent): \(microphoneDirectory.path)")
+        print("   💻 \(systemDirectory.lastPathComponent): \(systemDirectory.path)")
+        print("   🎧 \(mixDirectory.lastPathComponent): \(mixDirectory.path)")
 
         if let microphoneURL, let systemURL, let baseName {
             Task.detached { [weak self] in
@@ -198,7 +209,7 @@ class DualAudioRecorder: NSObject {
 
         // Файл для микрофона
         let micFilename = "microphone_\(baseName).wav"
-        let micURL = outputDirectory.appendingPathComponent(micFilename)
+        let micURL = microphoneDirectory.appendingPathComponent(micFilename)
         audioFile = try AVAudioFile(forWriting: micURL, settings: micFormat.settings)
         print("📝 Создан файл микрофона: \(micFilename)")
 
@@ -214,7 +225,7 @@ class DualAudioRecorder: NSObject {
         ]
 
         let sysFilename = "system_\(baseName).wav"
-        let sysURL = outputDirectory.appendingPathComponent(sysFilename)
+        let sysURL = systemDirectory.appendingPathComponent(sysFilename)
         systemAudioFile = try AVAudioFile(forWriting: sysURL, settings: settings)
         print("📝 Создан файл системы: \(sysFilename)")
     }
@@ -236,7 +247,7 @@ class DualAudioRecorder: NSObject {
     }
 
     private func mixAudioFiles(microphoneURL: URL, systemURL: URL, baseName: String) async throws -> URL {
-        let outputURL = outputDirectory.appendingPathComponent("mix_\(baseName).m4a")
+        let outputURL = mixDirectory.appendingPathComponent("mix_\(baseName).m4a")
         if FileManager.default.fileExists(atPath: outputURL.path) {
             try FileManager.default.removeItem(at: outputURL)
         }
