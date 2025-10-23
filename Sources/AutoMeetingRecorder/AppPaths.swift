@@ -11,14 +11,29 @@ struct AppPaths {
     /// Подпапка для аудиозаписей: `.../Recordings`.
     let recordingsDirectory: URL
 
+    /// Отдельная папка для дорожек с микрофона.
+    let microphoneRecordingsDirectory: URL
+
+    /// Отдельная папка для системного звука.
+    let systemRecordingsDirectory: URL
+
+    /// Отдельная папка для сведённых миксов.
+    let mixedRecordingsDirectory: URL
+
     private init() {
         let fileManager = FileManager.default
         let applicationSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         rootDirectory = applicationSupportURL.appendingPathComponent("AutoMeetingRecorder", isDirectory: true)
         recordingsDirectory = rootDirectory.appendingPathComponent("Recordings", isDirectory: true)
+        microphoneRecordingsDirectory = recordingsDirectory.appendingPathComponent("Microphone", isDirectory: true)
+        systemRecordingsDirectory = recordingsDirectory.appendingPathComponent("System", isDirectory: true)
+        mixedRecordingsDirectory = recordingsDirectory.appendingPathComponent("Mixes", isDirectory: true)
 
         createDirectoryIfNeeded(rootDirectory)
         createDirectoryIfNeeded(recordingsDirectory)
+        createDirectoryIfNeeded(microphoneRecordingsDirectory)
+        createDirectoryIfNeeded(systemRecordingsDirectory)
+        createDirectoryIfNeeded(mixedRecordingsDirectory)
     }
 
     private func createDirectoryIfNeeded(_ url: URL) {
